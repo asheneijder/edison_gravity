@@ -1,59 +1,166 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Swift Engine (Edison Gravity)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg?style=for-the-badge)
+![PHP](https://img.shields.io/badge/php-8.3-777BB4.svg?style=for-the-badge&logo=php&logoColor=white)
+![Laravel](https://img.shields.io/badge/laravel-11.0-FF2D20.svg?style=for-the-badge&logo=laravel&logoColor=white)
+![Filament](https://img.shields.io/badge/filament-3.x-F2C94C.svg?style=for-the-badge&logo=filament&logoColor=black)
+![Docker](https://img.shields.io/badge/docker-ready-2496ED.svg?style=for-the-badge&logo=docker&logoColor=white)
 
-## About Laravel
+> **AmanahRaya Trustees Berhad Initiative**  
+> *Developed by Ashraf*
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Overview
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**Swift Engine** is a specialized financial processing system designed to streamline SWIFT message handling and audit trails. Built with robustness and security in mind, it serves as a central engine for processing, monitoring, and analyzing financial communication data.
 
-## Learning Laravel
+### ✨ Key Features
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+*   **SWIFT Message Processing**: Automated ingestion and parsing of MT/MX messages.
+*   **Comprehensive Activity Logging**:
+    *   Logs **every** user and admin action.
+    *   **Geo-Location Tracking**: Automatically resolves IP addresses to physical locations (City, Country).
+    *   **CSV Exports**: Downloadable activity logs for audit compliance.
+*   **Secure Access**:
+    *   **Single Session Enforcement**: Prevents concurrent logins; older sessions are automatically revoked.
+    *   **Role-Based Access Control**: Granular permissions for Admins and Users.
+*   **Modern Dashboard**:
+    *   Visual Charts: Message frequency and volume by BIC.
+    *   Real-time "Recent Logs" widget.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## 📦 Deployment Guide
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Follow these steps to migrate **Swift Engine** to your production environment.
 
-### Premium Partners
+### 1. Code Migration & Setup
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+**Recommended Directory:**
+*   **Linux**: `/var/www/swift-engine`
+*   **Windows**: `C:\inetpub\wwwroot\swift-engine` or `C:\Apps\swift-engine`
 
-## Contributing
+**Step-by-Step Import:**
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1.  **Clone the Repository** (Best method):
+    ```bash
+    cd /var/www
+    git clone https://gitlab.com/your-repo/swift-engine.git swift-engine
+    cd swift-engine
+    ```
+    *Alternatively, SFTP the project files if direct git access is restricted.*
 
-## Code of Conduct
+2.  **Environment Configuration (.env)**:
+    *   **Never** commit your `.env` file.
+    *   Copy the example file on the server:
+        ```bash
+        cp .env.example .env
+        ```
+    *   **Edit `.env`** with production credentials:
+        ```ini
+        APP_NAME="Swift Engine"
+        APP_ENV=production
+        APP_DEBUG=false
+        APP_URL=https://swift-engine.amanahraya.my
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+        DB_CONNECTION=mysql
+        DB_HOST=127.0.0.1 (or RDS endpoint)
+        DB_DATABASE=swift_engine_prod
+        DB_USERNAME=your_db_user
+        DB_PASSWORD=your_secure_password
 
-## Security Vulnerabilities
+        # Critical for Single Session & Logging
+        SESSION_DRIVER=database
+        QUEUE_CONNECTION=database (ensure queue worker is running)
+        ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+### 2. server Deployment Instructions
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+#### 🐧 AlmaLinux / Ubuntu (Docker Method - Recommended)
+
+1.  **Install Docker & Docker Compose**:
+    *   *AlmaLinux*: `sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo && sudo dnf install docker-ce docker-ce-cli containerd.io`
+    *   *Ubuntu*: `sudo apt-get update && sudo apt-get install docker-ce docker-ce-cli containerd.io`
+
+2.  **Prepare Docker Files**:
+    *   Open `docker-compose.yml` and check comments tagged with `ashraf29122025`.
+    *   Ensure port mappings are set to `80:80` and `443:443`.
+    *   Set `APP_ENV=production` in the `environment` section.
+
+3.  **Build & Run**:
+    ```bash
+    # Build container with production assets
+    docker-compose build app
+
+    # Start services in background
+    docker-compose up -d
+    ```
+
+4.  **Final Setup**:
+    ```bash
+    # install dependencies
+    docker-compose exec app composer install --optimize-autoloader --no-dev
+    
+    # Generate Key
+    docker-compose exec app php artisan key:generate
+
+    # Run Migrations
+    docker-compose exec app php artisan migrate --force
+    
+    # Optimize
+    docker-compose exec app php artisan optimize
+    ```
+
+#### 🪟 Windows Server (IIS Method)
+
+1.  **Prerequisites**:
+    *   Install **PHP 8.3** for Windows (VS16 x64 Thread Safe).
+    *   Install **Composer**.
+    *   Install **MySQL** or **MariaDB**.
+    *   Install **IIS** with CGI module.
+
+2.  **Directory Setup**:
+    *   Place source code in `C:\inetpub\wwwroot\swift-engine`.
+
+3.  **Permissions**:
+    *   Grant `Modify` permission to `IUSR` and `IIS_IUSRS` for:
+        *   `storage/` directory.
+        *   `bootstrap/cache/` directory.
+
+4.  **Install Dependencies**:
+    ```powershell
+    cd C:\inetpub\wwwroot\swift-engine
+    composer install --optimize-autoloader --no-dev
+    npm install
+    npm run build
+    ```
+
+5.  **IIS Configuration**:
+    *   Create a new Website in IIS Manager.
+    *   Set **Physical Path** to `C:\inetpub\wwwroot\swift-engine\public`.
+    *   Add `web.config` to the `public` folder (Laravel includes this by default) to handle URL rewriting.
+
+6.  **Finalize**:
+    ```powershell
+    php artisan key:generate
+    php artisan migrate --force
+    php artisan config:cache
+    php artisan route:cache
+    php artisan view:cache
+    ```
+
+---
+
+## 🛠 Troubleshooting
+
+*   **Logs not appearing?**
+    *   Ensure `QUEUE_CONNECTION` is set correctly. If `database`, run `php artisan queue:work`. If `sync`, logs appear instantly (slower performance).
+*   **Permission Denied?**
+    *   Linux: `chown -R www-data:www-data storage bootstrap/cache`
+    *   Windows: Check `IUSR` permissions on `storage` folder.
+
+---
+*© 2025 AmanahRaya Trustees Berhad. All Rights Reserved.*
