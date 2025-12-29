@@ -63,7 +63,12 @@ php artisan env:decrypt --key=base64:xyz...
 This method ensures consistency across environments using containers.
 
 #### **Phase 1: Server Preparation**
-1.  **Install Docker & Compose**:
+1.  **Check for Existing Installation**:
+    Run: `docker -v`
+    *   If valid (e.g., `Docker version 24.x`), **SKIP to Phase 2**.
+    *   If not found, proceed below.
+
+2.  **Install Docker & Compose**:
     *   **AlmaLinux**:
         ```bash
         sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
