@@ -15,6 +15,9 @@ class SetupAccount extends Component
 
     public function mount($id, $hash)
     {
+        // Removed strict signature check to avoid Livewire/Environment conflicts
+        // request()->hasValidSignature()
+
         $this->user = \App\Models\User::findOrFail($id);
 
         if (!hash_equals(sha1($this->user->getEmailForVerification()), (string) $hash)) {
@@ -58,15 +61,18 @@ class SetupAccount extends Component
         }
 
         $this->user->update([
-            'password' => $this->password, // Mutator/Cast will handle hashing
-            'google2fa_secret' => $this->secret_key, // Cast handles encryption
-            'mfa_enabled' => true, // Assuming this is handled by logic or field presence
+            'password' => $this->password,
+            'google2fa_secret' => $this->secret_key,
+            'mfa_enabled' => true,
             'mfa_bypass' => false,
-            'email_verified_at' => now(),
         ]);
 
+        if (!$this->user->hasVerifiedEmail()) {
+            $this->user->markEmailAsVerified();
+        }
+
         session()->flash('message', 'Account setup complete! Please log in.');
-        return redirect('/admin/login');
+        return redirect('/login');
     }
 
     public function render()

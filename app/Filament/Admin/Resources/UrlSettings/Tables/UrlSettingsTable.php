@@ -1,42 +1,38 @@
 <?php
 
-namespace App\Filament\Admin\Resources\NotificationSettings\Tables;
+namespace App\Filament\Admin\Resources\UrlSettings\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class NotificationSettingsTable
+class UrlSettingsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
-                \Filament\Tables\Columns\TextColumn::make('from_address')
-                    ->label('Sender Address')
-                    ->searchable()
-                    ->sortable(),
-                \Filament\Tables\Columns\TextColumn::make('mailer')
-                    ->label('Protocol')
-                    ->badge()
-                    ->color('info'),
-                \Filament\Tables\Columns\TextColumn::make('host')
-                    ->label('Host'),
-                \Filament\Tables\Columns\TextColumn::make('username')
-                    ->label('Username')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('url')
+                    ->searchable(),
                 \Filament\Tables\Columns\ToggleColumn::make('is_active')
                     ->label('Active')
                     ->onColor('success')
                     ->offColor('danger')
                     ->afterStateUpdated(function ($record, $state) {
                         if ($state) {
-                            \App\Models\NotificationSetting::where('id', '!=', $record->id)->update(['is_active' => false]);
+                            \App\Models\UrlSetting::where('id', '!=', $record->id)->update(['is_active' => false]);
                         }
                     }),
-                \Filament\Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('created_at')
                     ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([

@@ -61,5 +61,18 @@ class AppServiceProvider extends ServiceProvider
         } catch (\Exception $e) {
             // Fallback to .env in case of DB error
         }
+
+        // Dynamic URL Configuration
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('url_settings')) {
+                $urlSetting = \App\Models\UrlSetting::where('is_active', true)->first();
+                if ($urlSetting) {
+                    config(['app.url' => $urlSetting->url]);
+                    \Illuminate\Support\Facades\URL::forceRootUrl($urlSetting->url);
+                }
+            }
+        } catch (\Exception $e) {
+            // Fallback to .env in case of DB error
+        }
     }
 }

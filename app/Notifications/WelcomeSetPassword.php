@@ -41,11 +41,13 @@ class WelcomeSetPassword extends Notification
         );
 
         return (new MailMessage)
-            ->subject('Welcome to ' . config('app.name') . ' - User Account Setup')
-            ->line('You have been registered an account. Please click the button below to set up your password and secure your account.')
-            ->action('Setup Password & MFA', $url)
+            ->subject('Security Notification - ' . config('app.name'))
+            ->greeting('Hello!')
+            ->line('A request has been received to access or setup your account.')
+            ->line('Please click the button below to securely set your password and configure Multi-Factor Authentication (MFA).')
+            ->action('Secure Account Setup', $url)
             ->line('This link will expire in 24 hours.')
-            ->line('Note: You will be required to set up Multi-Factor Authentication (MFA) as part of the security policy.');
+            ->salutation(config('app.name'));
     }
 
     /**

@@ -31,6 +31,7 @@ class AdminPanelProvider extends PanelProvider
             // ashraf29122025 : check if debug on, show DEV, else normal name
             ->brandName(fn() => (config('app.debug') ? 'SWIFT-Engine (DEV)' : 'SWIFT-Engine') . ' (Admin Site)')
             ->login()
+            ->passwordReset(\App\Filament\Admin\Pages\RequestPasswordReset::class)
             ->authGuard('admin')
             ->colors([
                 'primary' => '#0061FF', // Bold Apple Blue
