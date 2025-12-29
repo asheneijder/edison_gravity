@@ -35,12 +35,18 @@
 
 To securely manage production credentials, Laravel allows you to encrypt your `.env` file.
 
-**1. Encrypting (On Local Machine):**
+**1. Encrypting (On Local Machine or inside Docker):**
 Run this command to encrypt your production `.env` file. It will generate a `.env.encrypted` file.
-```bash
-php artisan env:encrypt --env=production
-```
-*Save the decryption key (e.g., `base64:xyz...`) securely. Do not commit it to git.*
+
+*   **Option A: Local PHP**:
+    ```bash
+    php artisan env:encrypt --env=production
+    ```
+*   **Option B: Inside Docker (Standard for Production)**:
+    ```bash
+    docker-compose exec app php artisan env:encrypt --env=production
+    ```
+*   *Save the decryption key (e.g., `base64:xyz...`) securely. Do not commit it to git.*
 
 **2. Decrypting (On Server):**
 Restore your `.env` file on the server using the key:
@@ -213,7 +219,16 @@ This method ensures consistency across environments using containers.
 
 ## 🌐 Advanced: Deploying on a "Busy" Server
 
-If your production server **already has other Docker containers** running (e.g., on ports 80/443), you cannot simply bind `80:80` again. You have two main options:
+## 🌐 Advanced: Deploying on a "Busy" Server
+
+### 🔍 Step 0: Check Before You Start
+If your production server **already has other Docker containers** running, check which ports are occupied:
+```bash
+docker ps
+```
+*If you see `0.0.0.0:80->80/tcp` or `0.0.0.0:443->443/tcp` in the output, your ports are busy.*
+
+You generally have two options to proceed:
 
 ### Option A: Reverse Proxy (Traefik / Nginx Proxy Manager) - **Recommended**
 If you use a central proxy to manage domains:
