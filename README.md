@@ -210,4 +210,32 @@ This method ensures consistency across environments using containers.
     *   Windows: Ensure `DB_HOST=127.0.0.1`.
 
 ---
+
+## 🌐 Advanced: Deploying on a "Busy" Server
+
+If your production server **already has other Docker containers** running (e.g., on ports 80/443), you cannot simply bind `80:80` again. You have two main options:
+
+### Option A: Reverse Proxy (Traefik / Nginx Proxy Manager) - **Recommended**
+If you use a central proxy to manage domains:
+1.  **Do NOT** map ports `80:80` or `443:443` in `docker-compose.yml`.
+2.  **Connect to the Proxy Network**:
+    ```yaml
+    networks:
+      swift-engine-net:
+        external: true
+        name: your_proxy_network_name
+    ```
+3.  **Remove Ports**: Comment out the `ports` section in `docker-compose.yml`. The proxy will talk to the container internally via the network.
+
+### Option B: Unique Port Mapping (Standalone)
+If you just want to access it via a specific port or map it manually through a host Nginx:
+1.  **Choose a unique port** (e.g., 8085).
+2.  **Update `docker-compose.yml`**:
+    ```yaml
+    ports:
+      - "8085:80"
+    ```
+3.  **Access**: You can now access the site at `http://your-server-ip:8085`.
+
+---
 *© 2025 Ashraf. All Rights Reserved.*
