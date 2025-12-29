@@ -1,4 +1,4 @@
-# Swift Engine (Edison Gravity)
+# Swift Engine
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg?style=for-the-badge)
 ![PHP](https://img.shields.io/badge/php-8.3-777BB4.svg?style=for-the-badge&logo=php&logoColor=white)
@@ -6,7 +6,7 @@
 ![Filament](https://img.shields.io/badge/filament-3.x-F2C94C.svg?style=for-the-badge&logo=filament&logoColor=black)
 ![Docker](https://img.shields.io/badge/docker-ready-2496ED.svg?style=for-the-badge&logo=docker&logoColor=white)
 
-> **AmanahRaya Trustees Berhad Initiative**  
+> **Personal Initiative**  
 > *Developed by Ashraf*
 
 ---
@@ -57,12 +57,16 @@ Follow these steps to migrate **Swift Engine** to your production environment.
         ```bash
         cp .env.example .env
         ```
-    *   **Edit `.env`** with production credentials:
+    *   **Edit `.env`** with production credentials. It is CRITICAL to set these values correctly:
         ```ini
         APP_NAME="Swift Engine"
         APP_ENV=production
+        # Set to false to hide (DEV) label in admin panel and secure error pages
         APP_DEBUG=false
-        APP_URL=https://swift-engine.amanahraya.my
+        APP_URL=https://your-domain.com
+
+        # Custom Production Indicator
+        PROD_INDICATOR=true
 
         DB_CONNECTION=mysql
         DB_HOST=127.0.0.1 (or RDS endpoint)
@@ -70,14 +74,23 @@ Follow these steps to migrate **Swift Engine** to your production environment.
         DB_USERNAME=your_db_user
         DB_PASSWORD=your_secure_password
 
-        # Critical for Single Session & Logging
+        # CRITICAL: Database driver is required for single-session enforcement
         SESSION_DRIVER=database
-        QUEUE_CONNECTION=database (ensure queue worker is running)
+        
+        # CRITICAL: Queue setup for background logging
+        QUEUE_CONNECTION=database
+        ```
+
+3.  **Database Setup**:
+    *   Ensure your MySQL/MariaDB server is running.
+    *   Create the empty database mentioned in `DB_DATABASE`:
+        ```sql
+        CREATE DATABASE swift_engine_prod;
         ```
 
 ---
 
-### 2. server Deployment Instructions
+### 2. Server Deployment Instructions
 
 #### 🐧 AlmaLinux / Ubuntu (Docker Method - Recommended)
 
@@ -99,6 +112,8 @@ Follow these steps to migrate **Swift Engine** to your production environment.
     docker-compose up -d
     ```
 
+    *Note: The Docker setup includes a supervisor configuration to automatically run the queue worker (`php artisan queue:work`).*
+
 4.  **Final Setup**:
     ```bash
     # install dependencies
@@ -107,7 +122,7 @@ Follow these steps to migrate **Swift Engine** to your production environment.
     # Generate Key
     docker-compose exec app php artisan key:generate
 
-    # Run Migrations
+    # Run Migrations (Populates the Database)
     docker-compose exec app php artisan migrate --force
     
     # Optimize
@@ -121,6 +136,7 @@ Follow these steps to migrate **Swift Engine** to your production environment.
     *   Install **Composer**.
     *   Install **MySQL** or **MariaDB**.
     *   Install **IIS** with CGI module.
+    *   Install **URL Rewrite** module for IIS.
 
 2.  **Directory Setup**:
     *   Place source code in `C:\inetpub\wwwroot\swift-engine`.
@@ -138,15 +154,27 @@ Follow these steps to migrate **Swift Engine** to your production environment.
     npm run build
     ```
 
-5.  **IIS Configuration**:
-    *   Create a new Website in IIS Manager.
-    *   Set **Physical Path** to `C:\inetpub\wwwroot\swift-engine\public`.
-    *   Add `web.config` to the `public` folder (Laravel includes this by default) to handle URL rewriting.
-
-6.  **Finalize**:
+5.  **Database & Key**:
     ```powershell
     php artisan key:generate
     php artisan migrate --force
+    ```
+
+6.  **Queue Worker Setup (CRITICAL)**:
+    *   Because `QUEUE_CONNECTION=database`, you **MUST** run a queue worker to process background jobs (like activity logging).
+    *   **Quick Test (Keep window open)**:
+        ```powershell
+        php artisan queue:work
+        ```
+    *   **Production Setup**: Use **NSSM** (Non-Sucking Service Manager) or Windows Task Scheduler to run `php artisan queue:work` as a persistent background service.
+    
+7.  **IIS Configuration**:
+    *   Create a new Website in IIS Manager.
+    *   Set **Physical Path** to `C:\inetpub\wwwroot\swift-engine\public`.
+    *   Ensure `web.config` exists in the `public` folder.
+
+8.  **Finalize**:
+    ```powershell
     php artisan config:cache
     php artisan route:cache
     php artisan view:cache
@@ -157,10 +185,12 @@ Follow these steps to migrate **Swift Engine** to your production environment.
 ## 🛠 Troubleshooting
 
 *   **Logs not appearing?**
-    *   Ensure `QUEUE_CONNECTION` is set correctly. If `database`, run `php artisan queue:work`. If `sync`, logs appear instantly (slower performance).
-*   **Permission Denied?**
-    *   Linux: `chown -R www-data:www-data storage bootstrap/cache`
-    *   Windows: Check `IUSR` permissions on `storage` folder.
+    *   Check your `.env`: Ensure `QUEUE_CONNECTION=database`.
+    *   **Crucial**: Check if the queue worker is running (`php artisan queue:work`). Without this, logs wait in the `jobs` table forever.
+    *   Check the `jobs` table in your database to see if pending jobs exist.
+*   **"DEV" still showing in header?**
+    *   Ensure `APP_DEBUG=false` in your `.env`.
+    *   Run `php artisan config:clear` to refresh the configuration.
 
 ---
-*© 2025 AmanahRaya Trustees Berhad. All Rights Reserved.*
+*© 2025 Ashraf. All Rights Reserved.*
