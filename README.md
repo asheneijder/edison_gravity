@@ -31,126 +31,136 @@
 
 ---
 
+## 🔐 Environment Security (.env Encryption)
+
+To securely manage production credentials, Laravel allows you to encrypt your `.env` file.
+
+**1. Encrypting (On Local Machine):**
+Run this command to encrypt your production `.env` file. It will generate a `.env.encrypted` file.
+```bash
+php artisan env:encrypt --env=production
+```
+*Save the decryption key (e.g., `base64:xyz...`) securely. Do not commit it to git.*
+
+**2. Decrypting (On Server):**
+Restore your `.env` file on the server using the key:
+```bash
+php artisan env:decrypt --key=base64:xyz...
+```
+
+---
+
 ## 📦 Deployment Guide
 
-Follow these steps to migrate **Swift Engine** to your production environment.
+### Option 1: Linux (AlmaLinux / Ubuntu) - 🐳 Docker Method (Recommended)
 
-### 1. Code Migration & Setup
+This method ensures consistency across environments using containers.
 
-**Recommended Directory:**
-*   **Linux**: `/var/www/swift-engine`
-*   **Windows**: `C:\inetpub\wwwroot\swift-engine` or `C:\Apps\swift-engine`
+#### **Phase 1: Server Preparation**
+1.  **Install Docker & Compose**:
+    *   **AlmaLinux**:
+        ```bash
+        sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+        sudo dnf install docker-ce docker-ce-cli containerd.io
+        sudo systemctl start docker && sudo systemctl enable docker
+        ```
+    *   **Ubuntu**:
+        ```bash
+        sudo apt-get update
+        sudo apt-get install docker-ce docker-ce-cli containerd.io
+        ```
 
-**Step-by-Step Import:**
-
-1.  **Clone the Repository** (Best method):
+#### **Phase 2: Code Setup**
+1.  **Clone Repository**:
     ```bash
+    mkdir -p /var/www
     cd /var/www
     git clone https://gitlab.com/your-repo/swift-engine.git swift-engine
     cd swift-engine
     ```
-    *Alternatively, SFTP the project files if direct git access is restricted.*
 
-2.  **Environment Configuration (.env)**:
-    *   **Never** commit your `.env` file.
-    *   Copy the example file on the server:
+2.  **Environment Setup**:
+    *   **Method A (Direct)**: Copy example and edit.
         ```bash
         cp .env.example .env
+        nano .env
         ```
-    *   **Edit `.env`** with production credentials. It is CRITICAL to set these values correctly:
+    *   **Method B (Encrypted)**: Upload `.env.encrypted` and decrypt.
+        ```bash
+        # (Requires php installed on host, OR run inside container after build)
+        # We will use Method A typically for Docker initial setup.
+        ```
+    *   **Critical Prod Settings in `.env`**:
         ```ini
-        APP_NAME="Swift Engine"
         APP_ENV=production
-        # Set to false to hide (DEV) label in admin panel and secure error pages
         APP_DEBUG=false
-        APP_URL=https://your-domain.com
-
-        # Custom Production Indicator
         PROD_INDICATOR=true
-
-        DB_CONNECTION=mysql
-        DB_HOST=127.0.0.1 (or RDS endpoint)
-        DB_DATABASE=swift_engine_prod
-        DB_USERNAME=your_db_user
-        DB_PASSWORD=your_secure_password
-
-        # CRITICAL: Database driver is required for single-session enforcement
-        SESSION_DRIVER=database
-        
-        # CRITICAL: Queue setup for background logging
         QUEUE_CONNECTION=database
+        DB_DATABASE=swift_engine_prod
         ```
 
-3.  **Database Setup**:
-    *   Ensure your MySQL/MariaDB server is running.
-    *   Create the empty database mentioned in `DB_DATABASE`:
-        ```sql
-        CREATE DATABASE swift_engine_prod;
-        ```
+#### **Phase 3: Build & Launch**
+1.  **Configure Docker Files**:
+    *   Edit `docker-compose.yml`: Ensure ports `80:80` and `443:443`.
+    *   Edit `docker/nginx/conf.d/app.conf`: Set `server_name your-domain.com`.
 
----
-
-### 2. Server Deployment Instructions
-
-#### 🐧 AlmaLinux / Ubuntu (Docker Method - Recommended)
-
-1.  **Install Docker & Docker Compose**:
-    *   *AlmaLinux*: `sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo && sudo dnf install docker-ce docker-ce-cli containerd.io`
-    *   *Ubuntu*: `sudo apt-get update && sudo apt-get install docker-ce docker-ce-cli containerd.io`
-
-2.  **Prepare Docker Files**:
-    *   Open `docker-compose.yml` and check comments tagged with `ashraf29122025`.
-    *   Ensure port mappings are set to `80:80` and `443:443`.
-    *   Set `APP_ENV=production` in the `environment` section.
-
-3.  **Database Setup (Docker)**:
-    *   The MySQL container will **automatically create** the database defined in your `.env` (`DB_DATABASE`) upon first launch. No manual creation is needed.
-    *   **Persistence**: Data is stored in the `dbdata` volume. Ensure this volume is backed up.
-
-4.  **Build & Run**:
+2.  **Start Containers**:
     ```bash
-    # Build container with production assets
     docker-compose build app
-
-    # Start services in background
     docker-compose up -d
     ```
 
-    *Note: The Docker setup includes a supervisor configuration to automatically run the queue worker (`php artisan queue:work`).*
-
-4.  **Final Setup**:
+3.  **Initialization**:
     ```bash
-    # install dependencies
+    # Install dependencies (Production optimized)
     docker-compose exec app composer install --optimize-autoloader --no-dev
     
     # Generate Key
     docker-compose exec app php artisan key:generate
 
-    # Run Migrations (Populates the Database)
+    # Run Migrations
+    # NOTE: The database is created automatically by the container.
     docker-compose exec app php artisan migrate --force
     
-    # Optimize
+    # Cache Configuration
     docker-compose exec app php artisan optimize
     ```
 
-#### 🪟 Windows Server (IIS Method)
+---
 
-1.  **Prerequisites**:
-    *   Install **PHP 8.3** for Windows (VS16 x64 Thread Safe).
-    *   Install **Composer**.
-    *   Install **MySQL** or **MariaDB**.
-    *   Install **IIS** with CGI module.
-    *   Install **URL Rewrite** module for IIS.
+### Option 2: Windows Server - 🪟 IIS Method
 
-2.  **Directory Setup**:
-    *   Place source code in `C:\inetpub\wwwroot\swift-engine`.
+#### **Phase 1: Prerequisites**
+*   **PHP 8.3** (Right click -> Extract to `C:\php`). Add to System PATH.
+*   **Composer** (Install globally).
+*   **MySQL 8.0** or MariaDB (Install and run service).
+*   **IIS Web Server** (Enable CGI role).
+*   **URL Rewrite Module** (Download from Microsoft/IIS.net).
 
-3.  **Permissions**:
-    *   Grant `Modify` permission to `IUSR` and `IIS_IUSRS` for:
-        *   `storage/` directory.
-        *   `bootstrap/cache/` directory.
+#### **Phase 2: Database Setup**
+1.  Open MySQL Workbench or Command Line.
+2.  Create the database:
+    ```sql
+    CREATE DATABASE swift_engine_prod;
+    ```
 
-4.  **Install Dependencies**:
+#### **Phase 3: Application Setup**
+1.  **Import Code**:
+    *   Clone or unzip files to `C:\inetpub\wwwroot\swift-engine`.
+
+2.  **Environment**:
+    *   Copy `.env.example` to `.env`.
+    *   Edit `.env`:
+        ```ini
+        APP_ENV=production
+        APP_DEBUG=false
+        DB_DATABASE=swift_engine_prod
+        QUEUE_CONNECTION=database
+        SESSION_DRIVER=database
+        ```
+    *   *If utilizing encryption*: Run `php artisan env:decrypt --key=...` in PowerShell.
+
+3.  **Install Dependencies**:
     ```powershell
     cd C:\inetpub\wwwroot\swift-engine
     composer install --optimize-autoloader --no-dev
@@ -158,43 +168,46 @@ Follow these steps to migrate **Swift Engine** to your production environment.
     npm run build
     ```
 
-5.  **Database & Key**:
+4.  **Finalize Laravel**:
     ```powershell
     php artisan key:generate
     php artisan migrate --force
+    php artisan storage:link
+    php artisan optimize
     ```
 
-6.  **Queue Worker Setup (CRITICAL)**:
-    *   Because `QUEUE_CONNECTION=database`, you **MUST** run a queue worker to process background jobs (like activity logging).
-    *   **Quick Test (Keep window open)**:
+#### **Phase 4: IIS & Worker Configuration**
+1.  **IIS Site**:
+    *   Add Website -> Name: "SwiftEngine".
+    *   Physical Path: `C:\inetpub\wwwroot\swift-engine\public`.
+    *   Binding: Port 80 (or 443 with SSL).
+
+2.  **Permissions**:
+    *   Right-click `storage` folders -> Properties -> Security.
+    *   Grant **Full Control** to `IUSR` and `IIS_IUSRS`.
+
+3.  **Queue Worker (CRITICAL)**:
+    *   You **must** keep a background process running for logs to appear.
+    *   **Use NSSM (Recommended)**:
         ```powershell
-        php artisan queue:work
+        nssm install SwiftEngineQueue "C:\php\php.exe"
+        # Arguments: "artisan queue:work --tries=3"
+        # Directory: "C:\inetpub\wwwroot\swift-engine"
+        nssm start SwiftEngineQueue
         ```
-    *   **Production Setup**: Use **NSSM** (Non-Sucking Service Manager) or Windows Task Scheduler to run `php artisan queue:work` as a persistent background service.
-    
-7.  **IIS Configuration**:
-    *   Create a new Website in IIS Manager.
-    *   Set **Physical Path** to `C:\inetpub\wwwroot\swift-engine\public`.
-    *   Ensure `web.config` exists in the `public` folder.
-
-8.  **Finalize**:
-    ```powershell
-    php artisan config:cache
-    php artisan route:cache
-    php artisan view:cache
-    ```
 
 ---
 
 ## 🛠 Troubleshooting
 
 *   **Logs not appearing?**
-    *   Check your `.env`: Ensure `QUEUE_CONNECTION=database`.
-    *   **Crucial**: Check if the queue worker is running (`php artisan queue:work`). Without this, logs wait in the `jobs` table forever.
-    *   Check the `jobs` table in your database to see if pending jobs exist.
-*   **"DEV" still showing in header?**
-    *   Ensure `APP_DEBUG=false` in your `.env`.
-    *   Run `php artisan config:clear` to refresh the configuration.
+    *   **Check Queue**: Ensure `php artisan queue:work` is running (Docker handles this via supervisor; Windows needs NSSM).
+*   **"500 Server Error" on Windows?**
+    *   Check `storage/logs/laravel.log`.
+    *   Verify `IUSR` permissions on `storage` folder.
+*   **Database Connection Error?**
+    *   Docker: Ensure `DB_HOST=db` (service name) or `127.0.0.1` depending on network mode.
+    *   Windows: Ensure `DB_HOST=127.0.0.1`.
 
 ---
 *© 2025 Ashraf. All Rights Reserved.*
