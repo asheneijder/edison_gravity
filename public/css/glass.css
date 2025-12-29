@@ -1,0 +1,103 @@
+/* Liquid Glass Theme Overrides - BOLD EDITION */
+
+/* Glassmorphism for Cards/Sections */
+.fi-section,
+.fi-card,
+.fi-wi-stats-overview-stat {
+    background-color: rgba(255, 255, 255, 0.85) !important;
+    /* Increased Opacity */
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 2px solid rgba(255, 255, 255, 0.6) !important;
+    /* Thicker Border */
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15) !important;
+    /* Stronger Shadow */
+}
+
+.dark .fi-section,
+.dark .fi-card,
+.dark .fi-wi-stats-overview-stat {
+    background-color: rgba(30, 30, 40, 0.75) !important;
+    border: 2px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Inputs & Form Fields */
+.fi-input,
+.fi-select-input,
+.fi-ta-content textarea {
+    background-color: rgba(255, 255, 255, 0.65) !important;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(0, 0, 0, 0.15) !important;
+    font-weight: 500 !important;
+    color: #000 !important;
+}
+
+.fi-input:focus,
+.fi-select-input:focus,
+.fi-ta-content textarea:focus {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    border-color: #0061FF !important;
+    /* Explicit Brand Blue */
+    box-shadow: 0 0 0 3px rgba(0, 97, 255, 0.3) !important;
+}
+
+.dark .fi-input,
+.dark .fi-select-input,
+.dark .fi-ta-content textarea {
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    border: 2px solid rgba(255, 255, 255, 0.15) !important;
+    color: #fff !important;
+}
+
+.dark .fi-input:focus,
+.dark .fi-select-input:focus,
+.dark .fi-ta-content textarea:focus {
+    background-color: rgba(0, 0, 0, 0.6) !important;
+    border-color: #3b82f6 !important;
+}
+
+/* Sidebar / Navigation */
+.fi-sidebar {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(20px) !important;
+    border-right: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.dark .fi-sidebar {
+    background-color: rgba(20, 20, 25, 0.8) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Topbar */
+.fi-topbar {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Stronger Button/Link Text */
+.fi-btn,
+a {
+    font-weight: 600 !important;
+}
+
+.dark .fi-topbar {
+    background-color: rgba(24, 24, 27, 0.7) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Tables */
+.fi-ta-table tr {
+    transition: background-color 0.2s;
+}
+
+.fi-ta-table tr:hover {
+    background-color: rgba(59, 130, 246, 0.05) !important;
+}
+
+/* Login Page Card specifically */
+.fi-simple-main .fi-section,
+.fi-simple-main .fi-card {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
