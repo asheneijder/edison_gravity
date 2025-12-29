@@ -29,7 +29,6 @@ class User extends Authenticatable implements FilamentUser
         'mfa_bypass',
         'can_view_swift_messages',
         'can_edit_swift_messages',
-        'can_view_search_ai',
     ];
 
     public function canAccessPanel(Panel $panel): bool

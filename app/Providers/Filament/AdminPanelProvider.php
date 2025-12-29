@@ -42,7 +42,8 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\Filament\Admin\Widgets')
             ->widgets([
-                // Widgets::class,
+                \App\Filament\App\Widgets\MessageTypeFrequencyChart::class,
+                \App\Filament\App\Widgets\MessagesByBicChart::class,
             ])
             // ashraf29122025 : enable database notifications and polling for real-time updates
             ->databaseNotifications()

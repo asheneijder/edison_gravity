@@ -24,6 +24,11 @@ class AppServiceProvider extends ServiceProvider
             \App\Listeners\LogSuccessfulLogin::class,
         );
 
+        \Illuminate\Support\Facades\Event::listen(
+            \Illuminate\Auth\Events\Login::class,
+            \App\Listeners\RevokeOtherSessions::class,
+        );
+
         \Filament\Support\Facades\FilamentView::registerRenderHook(
             \Filament\View\PanelsRenderHook::BODY_END,
             fn(): string => view('components.location-tracker'),

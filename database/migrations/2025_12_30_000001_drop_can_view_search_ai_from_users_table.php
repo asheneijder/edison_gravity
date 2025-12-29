@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('can_view_search_ai')->default(true)->after('can_edit_swift_messages');
+            $table->dropColumn('can_view_search_ai');
         });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('can_view_search_ai');
+            $table->boolean('can_view_search_ai')->default(false);
         });
     }
 };

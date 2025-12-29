@@ -3,40 +3,47 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: edison-gravity-app
-    container_name: edison-gravity-app
+    image: swift-engine-app
+    container_name: swift-engine-app
     restart: unless-stopped
     tty: true
     environment:
       SERVICE_NAME: app
       SERVICE_TAGS: dev
+      # ashraf29122025 : change to production when live
+      # SERVICE_TAGS: production
     working_dir: /var/www
     volumes:
       - ./:/var/www
+      # ashraf29122025 : remove this line so use code inside container
     networks:
-      - edison-net
+      - swift-engine-net
 
   webserver:
     image: nginx:alpine
-    container_name: edison-gravity-nginx
+    container_name: swift-engine-nginx
     restart: unless-stopped
     tty: true
     ports:
       - "8080:80"
+      # ashraf29122025 : change to 80:80 and 443:443 for ssl support
+      # - "80:80"
+      # - "443:443"
     volumes:
       - ./:/var/www
+      # ashraf29122025 : remove this mount too
       - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
     networks:
-      - edison-net
+      - swift-engine-net
     depends_on:
       - app
 
   db:
     image: mysql:8.0
-    container_name: edison-gravity-db
+    container_name: swift-engine-db
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: ${DB_DATABASE:-edison_gravity}
+      MYSQL_DATABASE: ${DB_DATABASE:-swift_engine}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
       MYSQL_PASSWORD: ${DB_PASSWORD:-root}
       MYSQL_USER: ${DB_USERNAME:-root}
@@ -44,14 +51,16 @@ services:
       SERVICE_NAME: mysql
     volumes:
       - dbdata:/var/lib/mysql
+      # ashraf29122025 : make sure backup db or use managed db like rds
     networks:
-      - edison-net
+      - swift-engine-net
     ports:
       - "33061:3306"
 
 networks:
-  edison-net:
+  swift-engine-net:
     driver: bridge
+    # ashraf29122025 : if use external reverse proxy, change to external: true
 
 volumes:
   dbdata:

@@ -19,6 +19,8 @@ class RecentLogsWidget extends TableWidget
                     ->sortable(),
                 Tables\Columns\TextColumn::make('ip_address')
                     ->label('IP Address'),
+                Tables\Columns\TextColumn::make('location')
+                    ->label('Location'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable(),

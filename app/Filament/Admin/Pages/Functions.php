@@ -39,8 +39,6 @@ class Functions extends Page implements HasTable
                     ->label('View Swift Messages'),
                 ToggleColumn::make('can_edit_swift_messages')
                     ->label('Edit/Create Swift Messages'),
-                ToggleColumn::make('can_view_search_ai')
-                    ->label('View Search AI'),
             ]);
     }
 }
