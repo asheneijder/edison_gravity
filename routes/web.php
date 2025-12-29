@@ -2,8 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 
+use App\Livewire\Auth\SetupAccount;
 
+Route::get('/', function () {
+    return redirect('/admin/login');
+});
 
+Route::get('/setup-account/{id}/{hash}', SetupAccount::class)
+    ->middleware(['signed'])
+    ->name('setup.account');
 Route::post('/user/location', [\App\Http\Controllers\UserLocationController::class, 'store'])
     ->middleware('auth:web,admin')
     ->name('user.location.store');

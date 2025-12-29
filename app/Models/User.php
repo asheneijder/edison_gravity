@@ -27,6 +27,7 @@ class User extends Authenticatable implements FilamentUser
         'role',
         'mfa_secret',
         'mfa_bypass',
+        'password_policy_enforced',
         'can_view_swift_messages',
         'can_edit_swift_messages',
     ];
@@ -61,6 +62,7 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'password_policy_enforced' => 'boolean',
         ];
     }
 
