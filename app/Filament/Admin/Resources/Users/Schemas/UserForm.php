@@ -27,10 +27,13 @@ class UserForm
                 Select::make('role')
                     ->options([
                         'admin' => 'Admin',
+                        'manager' => 'Manager',
                         'user' => 'User',
                     ])
                     ->required()
                     ->default('user'),
+                Checkbox::make('mfa_bypass')
+                    ->label('Bypass MFA'),
                 Checkbox::make('mfa_enabled')
                     ->label('MFA Enabled')
                     ->formatStateUsing(fn($record) => $record && $record->google2fa_secret)

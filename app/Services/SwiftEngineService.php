@@ -83,17 +83,21 @@ class SwiftEngineService
 
                 if ($result) {
                     // 1. Duplicate Check & Save to MySQL
-                    if ($this->saveToDatabase($result)) {
+                    $savedMessage = $this->saveToDatabase($result);
+                    if ($savedMessage) {
                         if ($onProgress)
                             $onProgress('info', "  [ACCEPTED] Saved to database.");
 
                         // 2. Add to Group for CSV generation
-                        $this->groupMessage($groupedMessages, $result);
+                        $this->groupMessage($groupedMessages, $result, $savedMessage->id);
                     } else {
                         if ($onProgress)
-                            $onProgress('warn', "  [REJECTED] Duplicate data found for {$fileName}. Skipping.");
+                            $onProgress('warn', "  [DUPLICATE] Record exists (Skipped DB save).");
                     }
                 } else {
+                    // ... (omitting unchanged parts for brevity, but I must match exact target content)
+// Actually, I'll update the methods individually to be safe.
+
                     if ($onProgress)
                         $onProgress('warn', "Skipped {$fileName}: Unable to determine Message Type.");
                 }
@@ -205,7 +209,7 @@ class SwiftEngineService
      * Checks for duplicates and saves to MySQL.
      * ashraf29122025 : mapped to mysql table strict fields
      */
-    protected function saveToDatabase(array $result): bool
+    protected function saveToDatabase(array $result): ?SwiftMessage
     {
         $data = $result['data'];
         $meta = $result['meta'];
@@ -226,10 +230,10 @@ class SwiftEngineService
             ->exists();
 
         if ($exists) {
-            return false;
+            return null;
         }
 
-        SwiftMessage::create([
+        return SwiftMessage::create([
             'frm_BIC' => $frmBic,
             'to_BIC' => $toBic,
             'messages' => $data, // Eloquent casts array to JSON
@@ -237,14 +241,12 @@ class SwiftEngineService
             'type' => $result['type'],
             'source_file' => $meta['source_file'],
         ]);
-
-        return true;
     }
 
     /**
      * Groups the parsed message into the array by Type/Sender/Receiver/Date.
      */
-    protected function groupMessage(array &$groupedMessages, array $result): void
+    protected function groupMessage(array &$groupedMessages, array $result, int $id): void
     {
         $data = $result['data'];
         $meta = $result['meta'];
@@ -260,11 +262,13 @@ class SwiftEngineService
         if (!isset($groupedMessages[$groupKey])) {
             $groupedMessages[$groupKey] = [
                 'meta' => $meta,
-                'rows' => []
+                'rows' => [],
+                'ids' => []
             ];
         }
 
         $groupedMessages[$groupKey]['rows'][] = $data;
+        $groupedMessages[$groupKey]['ids'][] = $id;
     }
 
     /**
@@ -309,6 +313,11 @@ class SwiftEngineService
             $csvContent = $this->generateCsvContent($rows);
             $fullPath = $directory . '/' . $filename;
             Storage::disk($disk)->put($fullPath, $csvContent);
+
+            // Update Database records with the generated filename
+            if (!empty($group['ids'])) {
+                SwiftMessage::whereIn('id', $group['ids'])->update(['file_directory' => $filename]);
+            }
 
             if ($onProgress)
                 $onProgress('info', "Created CSV: {$fullPath} (" . count($rows) . " msgs)");

@@ -61,7 +61,7 @@ class BatchJob extends Page implements HasForms
                         ])->fullWidth(),
                     ])
                     ->columns(2),
-                Section::make('2. SWIFT Engine Processing')
+                Section::make('2. Adhoc Processing')
                     ->description('Process SWIFT MT/MX files from Storage.')
                     ->schema([
                         \Filament\Forms\Components\Placeholder::make('info')
@@ -69,7 +69,7 @@ class BatchJob extends Page implements HasForms
                             ->content('Upload files to: storage/app/swift/inbound'),
                         \Filament\Schemas\Components\Actions::make([
                             \Filament\Actions\Action::make('runSwiftEngine')
-                                ->label('Run SWIFT Processing')
+                                ->label('Run Adhoc Processing')
                                 ->color('primary')
                                 ->action('runSwiftEngine'),
                         ])->fullWidth(),
@@ -109,11 +109,14 @@ class BatchJob extends Page implements HasForms
         \Illuminate\Support\Facades\Storage::disk($disk)->makeDirectory($inbound);
         \Illuminate\Support\Facades\Storage::disk($disk)->makeDirectory($outbound);
 
-        $stats = ['processed' => 0, 'errors' => 0];
+        $stats = ['processed' => 0, 'duplicates' => 0, 'errors' => 0];
 
         $engine->processInboundFiles($disk, $inbound, $outbound, function ($type, $msg) use (&$stats) {
             if ($type === 'info' && str_contains($msg, '[ACCEPTED]')) {
                 $stats['processed']++;
+            }
+            if ($type === 'warn' && str_contains($msg, '[DUPLICATE]')) {
+                $stats['duplicates']++;
             }
             if ($type === 'error') {
                 $stats['errors']++;
@@ -121,9 +124,11 @@ class BatchJob extends Page implements HasForms
         });
 
         Notification::make()
-            ->title('SWIFT Processing Complete')
-            ->body("Processed: {$stats['processed']} | Errors: {$stats['errors']}")
+            ->title('Adhoc Processing Complete')
+            ->body("Processed: {$stats['processed']} | Skipped (Check DB): {$stats['duplicates']} | Errors: {$stats['errors']}")
             ->success()
-            ->send();
+            ->send()
+            // ashraf29122025 : notify user via database for persistence
+            ->sendToDatabase(\Illuminate\Support\Facades\Auth::user());
     }
 }

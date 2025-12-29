@@ -13,12 +13,15 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Filament\Tables;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static \UnitEnum|string|null $navigationGroup = 'Management';
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -29,7 +32,24 @@ class UserResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return UsersTable::configure($table);
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('role')
+                    ->badge()
+                    ->colors([
+                        'danger' => 'admin',
+                        'warning' => 'manager',
+                        'success' => 'user',
+                    ]),
+                Tables\Columns\IconColumn::make('mfa_bypass')
+                    ->boolean()
+                    ->label('Bypass MFA'),
+                Tables\Columns\TextColumn::make('created_at'),
+            ]);
     }
 
     public static function getRelations(): array

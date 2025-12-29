@@ -9,6 +9,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
+use Filament\Navigation\NavigationGroup;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
@@ -43,6 +44,9 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 // Widgets::class,
             ])
+            // ashraf29122025 : enable database notifications and polling for real-time updates
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -57,6 +61,14 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
                 \App\Http\Middleware\EnsureMfaSetup::class,
+            ])
+            ->sidebarCollapsibleOnDesktop()
+            ->navigationGroups([
+                'Management',
+                NavigationGroup::make()
+                    ->label('Swift Messages')
+                    ->icon('heroicon-o-globe-alt'),
+                'Settings',
             ]);
     }
 }

@@ -15,7 +15,7 @@ class EnsureMfaSetup
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $user = auth()->user();
+        $user = $request->user();
 
         if (!$user) {
             return $next($request);
@@ -26,7 +26,12 @@ class EnsureMfaSetup
             return $next($request);
         }
 
-        // If secret is missing -> Force Setup
+        // Check for MFA bypass
+        if ($user->mfa_bypass) {
+            return $next($request);
+        }
+
+        // If user has not set up MFA yet
         if (!$user->google2fa_secret) {
             return redirect()->route('mfa.setup');
         }
