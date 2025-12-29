@@ -103,7 +103,11 @@ Follow these steps to migrate **Swift Engine** to your production environment.
     *   Ensure port mappings are set to `80:80` and `443:443`.
     *   Set `APP_ENV=production` in the `environment` section.
 
-3.  **Build & Run**:
+3.  **Database Setup (Docker)**:
+    *   The MySQL container will **automatically create** the database defined in your `.env` (`DB_DATABASE`) upon first launch. No manual creation is needed.
+    *   **Persistence**: Data is stored in the `dbdata` volume. Ensure this volume is backed up.
+
+4.  **Build & Run**:
     ```bash
     # Build container with production assets
     docker-compose build app
